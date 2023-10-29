@@ -1,6 +1,7 @@
+const config = require("../config");
 const mongoose = require("mongoose");
 
-const URL = process.env.MONGO_DB_URL;
+const { URL } = config;
 
 const connectToMongo = () => {
   mongoose.connect(URL, {
@@ -22,6 +23,4 @@ connection.once("open", () => {
   console.log("Mongodb Connection Success !");
 });
 
-
 module.exports.connectToMongo = connectToMongo;
-
