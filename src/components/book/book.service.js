@@ -1,6 +1,11 @@
 const Book = require("./book.model");
+const { createbookSchema, updatebookSchema } = require("./book.schema");
+const { errorResponse } = require("../../middleware/error-handling-middleware");
 
 const createBookService = async (data) => {
+  const { error } = createbookSchema.validate(data);
+  if (error) return errorResponse(error.details[0].message);
+
   const book = new Book({
     name: data.name,
     totalCopies: data.totalCopies,
@@ -8,15 +13,18 @@ const createBookService = async (data) => {
   try {
     return await book.save();
   } catch (error) {
-    console.error(error);
+    return errorResponse(error);
   }
 };
 
 const updateBookService = async (data) => {
   const book = await Book.findById(data.id);
 
+  const { error } = updatebookSchema.validate(data);
+  if (error) return errorResponse(error.details[0].message);
+
   if (!book) {
-    throw new Error("Not Found with this ID");
+    return errorResponse("Not Found with this ID");
   }
 
   book.name = data.name || book.name;
@@ -25,7 +33,7 @@ const updateBookService = async (data) => {
   try {
     return await book.save();
   } catch (error) {
-    console.error(error);
+    return errorResponse(error);
   }
 };
 
@@ -33,12 +41,16 @@ const deleteBookService = async (data) => {
   const book = await Book.findByIdAndRemove(data.id);
 
   if (!book) {
-    throw new Error("Not Found with this ID");
+    return errorResponse("Not Found with this ID");
   }
 };
 
 const allBooksService = async () => {
-  return await Book.find({}, "name availableCopies");
+  try {
+    return await Book.find({}, "name availableCopies");
+  } catch (error) {
+    return errorResponse(error);
+  }
 };
 
 module.exports = {

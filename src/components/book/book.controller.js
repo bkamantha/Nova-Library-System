@@ -5,12 +5,14 @@ const {
   allBooksService,
 } = require("./book.service");
 
+const { errorResponse } = require("../../middleware/error-handling-middleware");
+
 const createBook = async (req, res) => {
   try {
     const book = await createBookService(req.body);
     res.send(book);
   } catch (error) {
-    res.status(500).send(error);
+    errorResponse(error, req, res);
   }
 };
 
@@ -19,7 +21,7 @@ const updateBook = async (req, res) => {
     const book = await updateBookService(req.body);
     res.send(book);
   } catch (error) {
-    res.status(500).send({ error: error.toString() });
+    errorResponse(error, req, res);
   }
 };
 
@@ -28,8 +30,7 @@ const deleteBook = async (req, res) => {
     await deleteBookService(req.query);
     res.send({ message: "Book deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: error.toString() });
+    errorResponse(error, req, res);
   }
 };
 
@@ -38,8 +39,7 @@ const allBooks = async (req, res) => {
     const books = await allBooksService();
     res.send(books);
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ error: error.toString() });
+    errorResponse(error, req, res);
   }
 };
 
