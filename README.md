@@ -1,10 +1,8 @@
 # Nova-Library-System
-
+src
 ├── app.js
 ├── config.js
 ├── server.js
-├── package.json
-├── node_modules/
 ├── components/
 │  ├── books/
 │  │  ├── books.routes.js
