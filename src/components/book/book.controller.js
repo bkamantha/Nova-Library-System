@@ -1,48 +1,46 @@
-const bookService = require("./book.service");
+const {
+  createBookService,
+  updateBookService,
+  deleteBookService,
+  allBooksService,
+} = require("./book.service");
 
-exports.createBook = async (req, res) => {
+const createBook = async (req, res) => {
   try {
-    const book = await bookService.createBook(req.body);
+    const book = await createBookService(req.body);
     res.send(book);
   } catch (error) {
     res.status(500).send(error);
   }
 };
 
-exports.updateBook = async (req, res) => {
+const updateBook = async (req, res) => {
   try {
-    const book = await bookService.updateBook(req.body);
+    const book = await updateBookService(req.body);
     res.send(book);
   } catch (error) {
     res.status(500).send({ error: error.toString() });
   }
 };
 
-exports.deleteBook = async (req, res) => {
+const deleteBook = async (req, res) => {
   try {
-    res.sent("test deleteBook");
+    await deleteBookService(req.query);
+    res.send({ message: "Book deleted successfully" });
   } catch (error) {
-    res.status(500).send(error);
+    console.error(error);
+    res.status(500).send({ error: error.toString() });
   }
 };
 
-exports.allBooks = async (req, res) => {
+const allBooks = async (req, res) => {
   try {
-    res.send([
-      {
-        name: "Book 1",
-        totalCopies: 5,
-      },
-      {
-        name: "Book 2",
-        totalCopies: 7,
-      },
-      {
-        name: "Book 3",
-        totalCopies: 3,
-      },
-    ]);
+    const books = await allBooksService();
+    res.send(books);
   } catch (error) {
-    res.status(500).send(error);
+    console.error(error);
+    res.status(500).send({ error: error.toString() });
   }
 };
+
+module.exports = { createBook, updateBook, deleteBook, allBooks };
