@@ -7,12 +7,12 @@ const {
   getUserBorrowedBooks,
 } = require("./borrowings.controller");
 
-router.post("/:id", borrowBook);
+router.post("/", borrowBook);
 
-router.put("/:id", returnBook);
+router.put("/", returnBook);
 
 router.get("/", getAllBorrowedBooks);
 
-router.get("/:id", getUserBorrowedBooks);
+router.get("/", getUserBorrowedBooks);
 
 module.exports = router;
