@@ -1,17 +1,22 @@
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = async (req, res, next) => {
-  const token = req.header("Authorization").replace("Bearer ", "");
+  const authHeader = req.header("Authorization");
 
-  if (!token) {
-    return res.status(401).send("Access Denied");
+  if (!authHeader) {
+    return res.status(401).send("Access Denied: No Authorization header");
   }
+
+  const token = authHeader.replace("Bearer ", "");
 
   try {
     const verified = jwt.verify(token, "YOUR_SECRET_KEY");
     req.user = verified;
 
-    console.log("User type:", verified.type); // You can now access the user's type
+    req.user.isAdmin = verified.type === "Admin";
+
+    // console.log("User type:", verified.type);
+    // console.log("Is Admin:", req.user.isAdmin);
 
     next();
   } catch (err) {

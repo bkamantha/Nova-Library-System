@@ -1,4 +1,5 @@
 const express = require("express");
+const { authMiddleware } = require("../../middleware/user-auth-Middleware");
 const router = express.Router();
 const {
   borrowBook,
@@ -9,10 +10,10 @@ const {
 
 router.post("/", borrowBook);
 
-router.put("/", returnBook);
+router.put("/", authMiddleware, returnBook);
 
-router.get("/self", getSelfBorrowedBooks);
+router.get("/self", authMiddleware, getSelfBorrowedBooks); //allow only regular users
 
-router.get("/", getUserBorrowedBooks);
+router.get("/", authMiddleware, getUserBorrowedBooks); //allow only admins to view borrowings
 
 module.exports = router;

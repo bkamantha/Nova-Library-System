@@ -56,7 +56,7 @@ const seedAdminService = () => {
   return User.findOne({ type: "Admin" })
     .then((adminExists) => {
       if (!adminExists) {
-        const hashedPassword = bcrypt.hashSync("Admin", 10);
+        const hashedPassword = bcrypt.hashSync("admin@123", 10);
 
         const adminAuth = new Auth({
           _id: "admin@test.com",

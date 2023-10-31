@@ -14,6 +14,9 @@ const createUser = async (req, res, next) => {
 };
 
 const deleteUser = async (req, res, next) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).send("Access Denied: Only admins can delete users");
+  }
   try {
     const user = await deleteUserService(req.query);
     res.status(200).json(user);
