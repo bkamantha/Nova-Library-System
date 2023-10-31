@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
+const AuthSchema = require("../auth/auth.model");
 
 const UserSchema = new mongoose.Schema({
-  authId: String,
-  userID: {
+  authId: {
     type: String,
+    ref: "Auth",
     required: true,
   },
   name: {

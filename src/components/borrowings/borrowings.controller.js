@@ -25,6 +25,11 @@ const returnBook = async (req, res) => {
 };
 
 const getSelfBorrowedBooks = async (req, res) => {
+
+  if (req.user.isAdmin) {
+    return res.status(403).send("Access Denied: Only regular user access");
+  }
+
   try {
     const borrowings = await getSelfBorrowedBooksService(req.body);
     res.status(200).json(borrowings);
@@ -34,6 +39,9 @@ const getSelfBorrowedBooks = async (req, res) => {
 };
 
 const getUserBorrowedBooks = async (req, res) => {
+  if (!req.user.isAdmin) {
+    return res.status(403).send("Access Denied: Only admins can access");
+  }
   try {
     const borrowings = await getAllBorrowedBooksService(req.body);
     res.status(200).json(borrowings);

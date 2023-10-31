@@ -1,47 +1,85 @@
 const User = require("./user.model");
+const Auth = require("../auth/auth.model");
+
+const bcrypt = require("bcrypt");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
 
-const createUserService = async (userData) => {
-  const user = new User({
-    authId: userData.authId, // MongoDB authentication ID
-    userID: userData.userID, // email
-    name: userData.name,
-  });
+const createUserService = (data) => {
+  return bcrypt
+    .genSalt(10)
+    .then((salt) => {
+      return bcrypt.hash(data.password, salt);
+    })
+    .then((hashedPassword) => {
+      const auth = new Auth({
+        _id: data.userID, //email
+        password: hashedPassword,
+      });
 
-  try {
-    return await user.save();
-  } catch (error) {
-    return errorResponse(error);
-  }
-};
+      const user = new User({
+        authId: auth._id,
+        name: data.name,
+      });
 
-const deleteUserService = async (data) => {
-  try {
-    const user = await User.findByIdAndRemove(data.id);
-    res.status(200).send({ message: "User deleted successfully" });
-  } catch (error) {
-    errorResponse(error);
-  }
-  if (!user) {
-    return errorResponse("Not Found with this ID");
-  }
-};
-
-const seedAdminService = async () => {
-  const adminExists = await User.findOne({ type: "Admin" });
-
-  if (!adminExists) {
-    const adminUser = new User({
-      userID: "admin@test.com",
-      name: "admin",
-      type: "Admin",
+      return Promise.all([auth.save(), user.save()]);
+    })
+    .then(() => {
+      return { message: "User created successfully" };
+    })
+    .catch((error) => {
+      return errorResponse(error);
     });
+};
 
-    await adminUser.save();
-    console.log("Admin account created");
-  } else {
-    console.log("Admin account already exists");
-  }
+const deleteUserService = (data) => {
+  return Auth.findByIdAndRemove(data.id)
+    .then((auth) => {
+      if (!auth) {
+        throw new Error("Auth not found with this ID");
+      }
+
+      return User.findOneAndRemove({ authId: auth._id });
+    })
+    .then((user) => {
+      if (!user) {
+        throw new Error("User not found with this authId");
+      }
+
+      return { message: "User deleted successfully" };
+    })
+    .catch((error) => {
+      return errorResponse(error);
+    });
+};
+
+const seedAdminService = () => {
+  return User.findOne({ type: "Admin" })
+    .then((adminExists) => {
+      if (!adminExists) {
+        const hashedPassword = bcrypt.hashSync("admin@123", 10);
+
+        const adminAuth = new Auth({
+          _id: "admin@test.com",
+          password: hashedPassword,
+        });
+
+        const adminUser = new User({
+          authId: adminAuth._id,
+          name: "admin",
+          type: "Admin",
+        });
+
+        return Promise.all([adminAuth.save(), adminUser.save()]);
+      } else {
+        console.log("Admin account already exists");
+      }
+    })
+    .then(() => {
+      console.log("Admin account created");
+    })
+    .catch((error) => {
+      return errorResponse(error);
+    });
 };
 
 module.exports = {
