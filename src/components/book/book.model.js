@@ -11,8 +11,12 @@ const BookSchema = new mongoose.Schema({
   },
   availableCopies: {
     type: Number,
-    default: 0,
   },
 });
+
+// BookSchema.pre("save", function (next) {
+//   this.availableCopies = this.totalCopies;
+//   next();
+// });
 
 module.exports = mongoose.model("Book", BookSchema);
