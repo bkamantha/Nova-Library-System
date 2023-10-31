@@ -9,16 +9,7 @@ const loginUser = async (req, res) => {
     errorResponse(error, req, res);
   }
 };
-const logoutUser = async (req, res) => {
-  try {
-    const tokenstat = await loginOutService(req.body);
-    res.status(201).json(tokenstat);
-  } catch (error) {
-    errorResponse(error, req, res);
-  }
-};
 
 module.exports = {
   loginUser,
-  logoutUser,
 };

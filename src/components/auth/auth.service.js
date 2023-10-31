@@ -1,23 +1,25 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+const Auth = require("./auth.model");
 const User = require("../user/user.model");
 
 const loginUserService = async (data) => {
-  const user = await User.findOne({ userID: data.userID });
+  const auth = await Auth.findOne({ _id: data.userID });
+  const user = await User.findOne({ authId: auth._id });
 
-  if (!user) {
-    throw new Error("User not found");
+  if (!auth) {
+    throw new Error("User auth not found");
   }
 
-  const validPassword = await bcrypt.compare(data.password, user.password);
+  const validPassword = await bcrypt.compare(data.password, auth.password);
 
   if (!validPassword) {
     throw new Error("Invalid password");
   }
 
   const token = jwt.sign(
-    { _id: user._id, authId: user.authId, type: user.type },
+    { _id: auth._id, type: user.type },
     "YOUR_SECRET_KEY",
     { expiresIn: "1h" }
   );
@@ -25,8 +27,4 @@ const loginUserService = async (data) => {
   return token;
 };
 
-const loginOutService = async (data) => {
-  localStorage.removeItem("token");
-};
-
-module.exports = { loginUserService, loginOutService };
+module.exports = { loginUserService };
