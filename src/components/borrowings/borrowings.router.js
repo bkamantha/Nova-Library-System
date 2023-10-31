@@ -3,16 +3,16 @@ const router = express.Router();
 const {
   borrowBook,
   returnBook,
-  getAllBorrowedBooks,
+  getSelfBorrowedBooks,
   getUserBorrowedBooks,
 } = require("./borrowings.controller");
 
-router.post("/:id", borrowBook);
+router.post("/", borrowBook);
 
-router.put("/:id", returnBook);
+router.put("/", returnBook);
 
-router.get("/", getAllBorrowedBooks);
+router.get("/self", getSelfBorrowedBooks);
 
-router.get("/:id", getUserBorrowedBooks);
+router.get("/", getUserBorrowedBooks);
 
 module.exports = router;
