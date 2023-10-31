@@ -3,7 +3,7 @@ const router = express.Router();
 const {
   borrowBook,
   returnBook,
-  getAllBorrowedBooks,
+  getSelfBorrowedBooks,
   getUserBorrowedBooks,
 } = require("./borrowings.controller");
 
@@ -11,7 +11,7 @@ router.post("/", borrowBook);
 
 router.put("/", returnBook);
 
-router.get("/", getAllBorrowedBooks);
+router.get("/self", getSelfBorrowedBooks);
 
 router.get("/", getUserBorrowedBooks);
 

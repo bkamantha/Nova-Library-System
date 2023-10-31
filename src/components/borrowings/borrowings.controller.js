@@ -2,7 +2,7 @@ const {
   borrowBookService,
   returnBookService,
   getAllBorrowedBooksService,
-  getUserBorrowedBooksService,
+  getSelfBorrowedBooksService,
 } = require("./borrowings.service");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
 
@@ -24,9 +24,9 @@ const returnBook = async (req, res) => {
   }
 };
 
-const getAllBorrowedBooks = async (req, res) => {
+const getSelfBorrowedBooks = async (req, res) => {
   try {
-    const borrowings = await getUserBorrowedBooksService(req.query);
+    const borrowings = await getSelfBorrowedBooksService(req.body);
     res.status(200).json(borrowings);
   } catch (error) {
     errorResponse(error, req, res);
@@ -35,10 +35,7 @@ const getAllBorrowedBooks = async (req, res) => {
 
 const getUserBorrowedBooks = async (req, res) => {
   try {
-    const borrowings = await getAllBorrowedBooksService(
-      req.params.id,
-      req.query
-    );
+    const borrowings = await getAllBorrowedBooksService(req.body);
     res.status(200).json(borrowings);
   } catch (error) {
     errorResponse(error, req, res);
@@ -48,6 +45,6 @@ const getUserBorrowedBooks = async (req, res) => {
 module.exports = {
   borrowBook,
   returnBook,
-  getAllBorrowedBooks,
+  getSelfBorrowedBooks,
   getUserBorrowedBooks,
 };

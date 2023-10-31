@@ -1,7 +1,6 @@
 const Borrowings = require("./borrowings.model");
 const User = require("../user/user.model");
 const Book = require("../book/book.model");
-const { CommandStartedEvent } = require("mongodb");
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -32,21 +31,19 @@ const borrowBookService = async (data) => {
   });
 
   const savedBorrowing = await borrowing.save();
+
   return {
-    user: {
-      _id: user._id,
-      name: user.name,
-    },
-    book: {
-      _id: book._id,
-      name: book.name,
-    },
+    userName: user.name,
+    bookName: book.name,
     isReturned: savedBorrowing.isReturned,
   };
 };
 
 const returnBookService = async (data) => {
-  const borrowing = await Borrowings.findOne({ book: data.bookId });
+  const borrowing = await Borrowings.findOne({
+    user: data.userId,
+    book: data.bookId,
+  });
   assert(borrowing, "Borrowing not found");
 
   const book = await Book.findById(data.bookId);
@@ -65,17 +62,41 @@ const returnBookService = async (data) => {
   return await borrowing.save();
 };
 
-const getAllBorrowedBooksService = async () => {
-  return await Borrowings.find().populate("user").populate("book");
+const getSelfBorrowedBooksService = async (data) => {
+  let query = { user: data.userId };
+  if (data.active_borrowings === "true") {
+    query.isReturned = true;
+  }
+  const borrowings = await Borrowings.find(query).populate("book");
+  return borrowings.map((borrowing) => borrowing.book.name);
 };
 
-const getUserBorrowedBooksService = async (userId) => {
-  return await Borrowings.find({ user: userId }).populate("book");
+const getAllBorrowedBooksService = async (data) => {
+  let query = {};
+
+  if (data.userId) {
+    query.user = data.userId;
+  }
+  if (data.active_borrowings === "true") {
+    query.isReturned = true;
+  } else if (data.active_borrowings === "false") {
+    query.isReturned = false;
+  }
+
+  const borrowings = await Borrowings.find(query)
+    .populate("user")
+    .populate("book");
+
+  return borrowings.map((borrowing) => ({
+    userId: borrowing.user.name,
+    bookId: borrowing.book.name,
+    active_borrowings: borrowing.isReturned,
+  }));
 };
 
 module.exports = {
   borrowBookService,
   returnBookService,
   getAllBorrowedBooksService,
-  getUserBorrowedBooksService,
+  getSelfBorrowedBooksService,
 };
