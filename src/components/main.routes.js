@@ -7,6 +7,6 @@ const borrowBookRouter = require("./borrowings/borrowings.router");
 
 router.use("/book", booksRouter);
 router.use("/user", userRouter);
-router.use("/borrowing", borrowBookRouter);
+router.use("/borrowings", borrowBookRouter);
 
 module.exports = router;

@@ -8,7 +8,7 @@ const { errorResponse } = require("../../middleware/error-handling-middleware");
 
 const borrowBook = async (req, res) => {
   try {
-    const borrowing = await borrowBookService(req.params.id, req.body);
+    const borrowing = await borrowBookService(req.body);
     res.status(201).json(borrowing);
   } catch (error) {
     errorResponse(error, req, res);
@@ -17,7 +17,7 @@ const borrowBook = async (req, res) => {
 
 const returnBook = async (req, res) => {
   try {
-    const borrowing = await returnBookService(req.params.id);
+    const borrowing = await returnBookService(req.body);
     res.status(200).json(borrowing);
   } catch (error) {
     errorResponse(error, req, res);

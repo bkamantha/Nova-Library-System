@@ -1,32 +1,66 @@
 const Borrowings = require("./borrowings.model");
 const User = require("../user/user.model");
 const Book = require("../book/book.model");
+const { CommandStartedEvent } = require("mongodb");
 
-const borrowBookService = async (userId, bookId) => {
-  const user = await User.findById(userId);
-  const book = await Book.findById(bookId);
-
-  if (!user || !book) {
-    throw new Error("User or book not found");
+const assert = (condition, message) => {
+  if (!condition) {
+    throw new Error(message);
   }
+};
+
+const borrowBookService = async (data) => {
+  const [user, book] = await Promise.all([
+    User.findById(data.userId),
+    Book.findById(data.bookId),
+  ]);
+
+  assert(user, "User not found");
+  assert(book, "Book not found");
+  assert(book.availableCopies > 0, "No available copies of the book");
+
+  book.availableCopies -= 1;
+
+  const savedBook = await book.save();
+
+  assert(savedBook, "Failed to update book record");
 
   const borrowing = new Borrowings({
-    user: userId,
-    book: bookId,
+    user: user._id,
+    book: book._id,
     isReturned: false,
   });
 
-  return await borrowing.save();
+  const savedBorrowing = await borrowing.save();
+  return {
+    user: {
+      _id: user._id,
+      name: user.name,
+    },
+    book: {
+      _id: book._id,
+      name: book.name,
+    },
+    isReturned: savedBorrowing.isReturned,
+  };
 };
 
-const returnBookService = async (borrowingId) => {
-  const borrowing = await Borrowings.findById(borrowingId);
+const returnBookService = async (data) => {
+  const borrowing = await Borrowings.findOne({ book: data.bookId });
+  assert(borrowing, "Borrowing not found");
 
-  if (!borrowing) {
-    throw new Error("Borrowing not found");
+  const book = await Book.findById(data.bookId);
+  assert(book, "Book not found");
+
+  if (data.active_borrowings) {
+    borrowing.isReturned = true;
+    book.availableCopies += 1;
+    assert(
+      book.availableCopies <= book.totalCopies,
+      "Available copies cannot exceed total copies"
+    );
+    await book.save();
   }
-
-  borrowing.isReturned = true;
 
   return await borrowing.save();
 };
