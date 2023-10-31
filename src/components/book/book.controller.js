@@ -9,6 +9,7 @@ const { errorResponse } = require("../../middleware/error-handling-middleware");
 
 const createBook = async (req, res) => {
   try {
+    warea;
     const book = await createBookService(req.body);
     res.status(201).send(book);
   } catch (error) {

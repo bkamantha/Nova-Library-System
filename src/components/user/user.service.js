@@ -1,15 +1,21 @@
 const User = require("./user.model");
+const bcrypt = require("bcrypt");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
 
-const createUserService = async (userData) => {
+const createUserService = async (data) => {
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(data.password, salt);
+
   const user = new User({
-    authId: userData.authId, // MongoDB authentication ID
-    userID: userData.userID, // email
-    name: userData.name,
+    authId: data.authId,
+    userID: data.userID,
+    password: hashedPassword,
+    name: data.name,
   });
 
   try {
-    return await user.save();
+    await user.save();
+    return { message: "User created successfully" };
   } catch (error) {
     return errorResponse(error);
   }
