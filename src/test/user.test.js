@@ -42,12 +42,6 @@ describe("User Routes", () => {
         name: `${randvalue}User`,
         password: `${randvalue}@123`,
       });
-
-    console.log({
-      userID: `${randvalue}@test.com`,
-      name: `${randvalue}User`,
-      password: `${randvalue}@123`,
-    });
     expect(response.status).toBe(201);
   });
 
@@ -81,4 +75,8 @@ describe("User Routes", () => {
   //     });
   //   expect(response.status).toBe(404);
   // });
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
 });
