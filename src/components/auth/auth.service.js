@@ -5,6 +5,7 @@ const Auth = require("./auth.model");
 const User = require("../user/user.model");
 
 const loginUserService = async (data) => {
+  //TODO add Optional chaining ?
   const auth = await Auth.findOne({ _id: data.userID });
   const user = await User.findOne({ authId: auth._id });
 
@@ -17,7 +18,7 @@ const loginUserService = async (data) => {
   if (!validPassword) {
     throw new Error("Invalid password");
   }
-
+  //TODO  move to service and return token and user object
   const token = jwt.sign(
     { _id: auth._id, type: user.type },
     "YOUR_SECRET_KEY",

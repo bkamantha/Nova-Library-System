@@ -4,6 +4,8 @@ const Auth = require("../auth/auth.model");
 const bcrypt = require("bcrypt");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
 
+//TODO change promises to async await
+
 const createUserService = (data) => {
   return bcrypt
     .genSalt(10)

@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
 
+//TODO move project secret to .env
+
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.header("Authorization");
 

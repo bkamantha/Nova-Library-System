@@ -2,6 +2,7 @@ const config = require("./config");
 const app = require("./app");
 const { connectToMongo } = require("./config/dbconn");
 
+//TODO wrap using try catch
 const { PORT } = config;
 
 connectToMongo();
