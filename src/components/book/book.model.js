@@ -14,9 +14,4 @@ const BookSchema = new mongoose.Schema({
   },
 });
 
-// BookSchema.pre("save", function (next) {
-//   this.availableCopies = this.totalCopies;
-//   next();
-// });
-
 module.exports = mongoose.model("Book", BookSchema);

@@ -1,6 +1,7 @@
 const express = require("express");
-const { authMiddleware } = require("../../middleware/auth-Middleware");
+const { authMiddleware } = require("../../middleware/authMiddleware");
 const router = express.Router();
+
 const {
   borrowBook,
   returnBook,
@@ -8,12 +9,36 @@ const {
   getUserBorrowedBooks,
 } = require("./borrowings.controller");
 
-router.post("/", borrowBook);
+const {
+  borrowBookSchema,
+  returnBookSchema,
+  getSelfBorrowedBooksSchema,
+  getUserBorrowedBooksSchema,
+} = require("./borrowings.schema");
 
-router.put("/", authMiddleware, returnBook);
+function validate(schema) {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+    next();
+  };
+}
 
-router.get("/self", authMiddleware, getSelfBorrowedBooks); //allow only regular users
-
-router.get("/", authMiddleware, getUserBorrowedBooks); //allow only admins to view borrowings
+router.post("/", validate(borrowBookSchema), borrowBook);
+router.put("/", authMiddleware, validate(returnBookSchema), returnBook);
+router.get(
+  "/self",
+  authMiddleware,
+  validate(getSelfBorrowedBooksSchema),
+  getSelfBorrowedBooks
+);
+router.get(
+  "/",
+  authMiddleware,
+  validate(getUserBorrowedBooksSchema),
+  getUserBorrowedBooks
+);
 
 module.exports = router;

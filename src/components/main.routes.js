@@ -6,7 +6,6 @@ const userRouter = require("./user/user.router");
 const borrowBookRouter = require("./borrowings/borrowings.router");
 const authRouter = require("./auth/auth.router");
 
-//TODO add validator middelware
 router.use("/book", booksRouter);
 router.use("/user", userRouter);
 router.use("/borrowings", borrowBookRouter);
