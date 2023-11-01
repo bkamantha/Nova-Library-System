@@ -11,7 +11,6 @@ const BookSchema = new mongoose.Schema({
   },
   availableCopies: {
     type: Number,
-    default: 0,
   },
 });
 

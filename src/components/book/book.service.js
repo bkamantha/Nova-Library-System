@@ -9,6 +9,7 @@ const createBookService = async (data) => {
   const book = new Book({
     name: data.name,
     totalCopies: data.totalCopies,
+    availableCopies: data.totalCopies,
   });
   try {
     return await book.save();

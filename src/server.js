@@ -4,11 +4,15 @@ const { connectToMongo } = require("./config/dbconn");
 
 const { PORT } = config;
 
-connectToMongo();
+try {
+  connectToMongo();
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(
-    `Server is listening on PORT ${PORT} at http://localhost:${PORT}`
-  );
-});
+  // Start the server
+  app.listen(PORT, () => {
+    console.log(
+      `Server is listening on PORT ${PORT} at http://localhost:${PORT}`
+    );
+  });
+} catch (error) {
+  console.error(`Failed to start the server: ${error}`);
+}
