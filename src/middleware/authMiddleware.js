@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-
-//TODO move project secret to .env
+const config = require("../config");
+const { SECRET_KEY } = config;
 
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.header("Authorization");
@@ -12,13 +12,10 @@ const authMiddleware = async (req, res, next) => {
   const token = authHeader.replace("Bearer ", "");
 
   try {
-    const verified = jwt.verify(token, "YOUR_SECRET_KEY");
+    const verified = jwt.verify(token, SECRET_KEY);
     req.user = verified;
 
     req.user.isAdmin = verified.type === "Admin";
-
-    // console.log("User type:", verified.type);
-    // console.log("Is Admin:", req.user.isAdmin);
 
     next();
   } catch (err) {

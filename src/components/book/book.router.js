@@ -6,7 +6,7 @@ const {
   updateBook,
   deleteBook,
 } = require("./book.controller");
-const { authMiddleware } = require("../../middleware/auth-Middleware");
+const { authMiddleware } = require("../../middleware/authMiddleware");
 
 router.get("/", allBooks);
 router.post("/create", authMiddleware, createBook);

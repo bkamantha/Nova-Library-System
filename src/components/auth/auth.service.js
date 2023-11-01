@@ -1,31 +1,22 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const Auth = require("./auth.model");
 const User = require("../user/user.model");
 
 const loginUserService = async (data) => {
-  //TODO add Optional chaining ?
-  const auth = await Auth.findOne({ _id: data.userID });
-  const user = await User.findOne({ authId: auth._id });
+  const auth = await Auth.findOne({ _id: data?.userID });
+  const user = await User.findOne({ authId: auth?._id });
 
   if (!auth) {
     throw new Error("User auth not found");
   }
 
-  const validPassword = await bcrypt.compare(data.password, auth.password);
+  const validPassword = await bcrypt.compare(data?.password, auth?.password);
 
   if (!validPassword) {
     throw new Error("Invalid password");
   }
-  //TODO  move to service and return token and user object
-  const token = jwt.sign(
-    { _id: auth._id, type: user.type },
-    "YOUR_SECRET_KEY",
-    { expiresIn: "1h" }
-  );
-
-  return token;
+  return { auth, user };
 };
 
 module.exports = { loginUserService };
