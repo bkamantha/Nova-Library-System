@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config");
-
 const { SECRET_KEY } = config;
 
 const authMiddleware = async (req, res, next) => {

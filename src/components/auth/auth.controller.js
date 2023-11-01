@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { loginUserService } = require("./auth.service");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
+
 const config = require("../../config");
 const { SECRET_KEY } = config;
 
