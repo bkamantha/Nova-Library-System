@@ -1,15 +1,28 @@
 const mongoose = require("mongoose");
 
-const BorrowingSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
-    required: true,
+const borrowingSchema = new mongoose.Schema({
+  _id: mongoose.Schema.Types.ObjectId,
+  User: {
+    _id: {
+      type: String,
+      ref: "Users",
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
   },
   book: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Book",
-    required: true,
+    _id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Book",
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
   },
   isReturned: {
     type: Boolean,
@@ -17,4 +30,4 @@ const BorrowingSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Borrowings", BorrowingSchema);
+module.exports = mongoose.model("Borrowing", borrowingSchema);

@@ -1,5 +1,6 @@
 const express = require("express");
 const { authMiddleware } = require("../../middleware/authMiddleware");
+const { validate } = require("../../middleware/validateMiddleware");
 const router = express.Router();
 
 const {
@@ -15,16 +16,6 @@ const {
   getSelfBorrowedBooksSchema,
   getUserBorrowedBooksSchema,
 } = require("./borrowings.schema");
-
-function validate(schema) {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-    next();
-  };
-}
 
 router.post("/", validate(borrowBookSchema), borrowBook);
 router.put("/", authMiddleware, validate(returnBookSchema), returnBook);

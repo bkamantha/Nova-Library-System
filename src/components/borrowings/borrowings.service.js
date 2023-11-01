@@ -1,6 +1,7 @@
 const Borrowings = require("./borrowings.model");
 const User = require("../user/user.model");
 const Book = require("../book/book.model");
+const mongoose = require("mongoose");
 
 const assert = (condition, message) => {
   if (!condition) {
@@ -10,13 +11,20 @@ const assert = (condition, message) => {
 
 const borrowBookService = async (data) => {
   const [user, book] = await Promise.all([
-    User.findById(data.userId),
+    User.findOne({ authId: data.userId }),
     Book.findById(data.bookId),
   ]);
 
   assert(user, "User not found");
   assert(book, "Book not found");
   assert(book.availableCopies > 0, "No available copies of the book");
+
+  const existingBorrowing = await Borrowings.findOne({
+    "User._id": data.userId,
+    "book._id": book._id,
+    isReturned: false,
+  });
+  assert(!existingBorrowing, "User has already borrowed this book");
 
   book.availableCopies -= 1;
 
@@ -25,15 +33,22 @@ const borrowBookService = async (data) => {
   assert(savedBook, "Failed to update book record");
 
   const borrowing = new Borrowings({
-    user: user._id,
-    book: book._id,
+    _id: new mongoose.Types.ObjectId(),
+    User: {
+      _id: data.userId,
+      name: user.name,
+    },
+    book: {
+      _id: book._id,
+      name: book.name,
+    },
     isReturned: false,
   });
 
   const savedBorrowing = await borrowing.save();
 
   return {
-    userName: user.name,
+    userName: data.userId,
     bookName: book.name,
     isReturned: savedBorrowing.isReturned,
   };
@@ -41,29 +56,28 @@ const borrowBookService = async (data) => {
 
 const returnBookService = async (data) => {
   const borrowing = await Borrowings.findOne({
-    user: data.userId,
-    book: data.bookId,
+    "User._id": data.userId,
+    "book._id": data.bookId,
   });
+
   assert(borrowing, "Borrowing not found");
 
   const book = await Book.findById(data.bookId);
   assert(book, "Book not found");
 
-  if (data.active_borrowings) {
-    borrowing.isReturned = true;
-    book.availableCopies += 1;
-    assert(
-      book.availableCopies <= book.totalCopies,
-      "Available copies cannot exceed total copies"
-    );
-    await book.save();
-  }
+  borrowing.isReturned = true;
 
-  return await borrowing.save();
+  book.availableCopies += 1;
+
+  assert(book.availableCopies <= book.totalCopies);
+
+  await Promise.all([book.save(), borrowing.save()]);
+
+  return borrowing;
 };
 
 const getSelfBorrowedBooksService = async (data) => {
-  let query = { user: data.userId };
+  let query = { "User._id": data.userId };
   if (data.active_borrowings === "true") {
     query.isReturned = true;
   }
@@ -75,7 +89,7 @@ const getAllBorrowedBooksService = async (data) => {
   let query = {};
 
   if (data.userId) {
-    query.user = data.userId;
+    query["User._id"] = data.userId;
   }
   if (data.active_borrowings === "true") {
     query.isReturned = true;
@@ -84,11 +98,11 @@ const getAllBorrowedBooksService = async (data) => {
   }
 
   const borrowings = await Borrowings.find(query)
-    .populate("user")
+    .populate("User")
     .populate("book");
 
   return borrowings.map((borrowing) => ({
-    userId: borrowing.user.name,
+    userId: borrowing.User.name,
     bookId: borrowing.book.name,
     active_borrowings: borrowing.isReturned,
   }));
