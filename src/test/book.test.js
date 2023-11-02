@@ -12,7 +12,7 @@ beforeAll(async () => {
   });
 });
 
-let token; // Declare token at the top of your file
+let token;
 
 beforeAll((done) => {
   request(app)

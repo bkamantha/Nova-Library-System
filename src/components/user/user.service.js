@@ -4,54 +4,45 @@ const Auth = require("../auth/auth.model");
 const bcrypt = require("bcrypt");
 const { errorResponse } = require("../../middleware/error-handling-middleware");
 
-//TODO change promises to async await
+const createUserService = async (data) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(data.password, salt);
 
-const createUserService = (data) => {
-  return bcrypt
-    .genSalt(10)
-    .then((salt) => {
-      return bcrypt.hash(data.password, salt);
-    })
-    .then((hashedPassword) => {
-      const auth = new Auth({
-        _id: data.userID, //email
-        password: hashedPassword,
-      });
-
-      const user = new User({
-        authId: auth._id,
-        name: data.name,
-      });
-
-      return Promise.all([auth.save(), user.save()]);
-    })
-    .then(() => {
-      return { message: "User created successfully" };
-    })
-    .catch((error) => {
-      return errorResponse(error);
+    const auth = new Auth({
+      _id: data.userID, //email
+      password: hashedPassword,
     });
+
+    const user = new User({
+      authId: auth._id,
+      name: data.name,
+    });
+
+    await Promise.all([auth.save(), user.save()]);
+
+    return { message: "User created successfully" };
+  } catch (error) {
+    return errorResponse(error);
+  }
 };
 
-const deleteUserService = (data) => {
-  return Auth.findByIdAndRemove(data.id)
-    .then((auth) => {
-      if (!auth) {
-        throw new Error("Auth not found with this ID");
-      }
+const deleteUserService = async (data) => {
+  try {
+    const auth = await Auth.findByIdAndRemove(data.id);
+    if (!auth) {
+      throw new Error("Auth not found with this ID");
+    }
 
-      return User.findOneAndRemove({ authId: auth._id });
-    })
-    .then((user) => {
-      if (!user) {
-        throw new Error("User not found with this authId");
-      }
+    const user = await User.findOneAndRemove({ authId: auth._id });
+    if (!user) {
+      throw new Error("User not found with this authId");
+    }
 
-      return { message: "User deleted successfully" };
-    })
-    .catch((error) => {
-      return errorResponse(error);
-    });
+    return { message: "User deleted successfully" };
+  } catch (error) {
+    return errorResponse(error);
+  }
 };
 
 const seedAdminService = () => {
